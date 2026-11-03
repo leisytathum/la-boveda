@@ -1,0 +1,1359 @@
+{
+  "info": {
+    "name": "La Bóveda API",
+    "description": "Flujo completo y pruebas de ataque. Ejecutar las carpetas en orden (Runner).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Flujo completo",
+      "item": [
+        {
+          "name": "Registro agente A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json().usuario.password).to.be.undefined);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Sufijo único para poder correr la colección varias veces sin chocar con emails repetidos",
+                  "pm.collectionVariables.set('sufijo', Date.now());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Agente A\",\n  \"email\": \"agentea_{{sufijo}}@boveda.com\",\n  \"password\": \"clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Registro agente B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json().usuario.password).to.be.undefined);",
+                  "pm.test('Aunque mandó rol jefe, queda como agente', () => pm.expect(pm.response.json().usuario.rol).to.eql('agente'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Agente B\",\n  \"email\": \"agenteb_{{sufijo}}@boveda.com\",\n  \"password\": \"clave1234\",\n  \"rol\": \"jefe\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Registro agente C",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('No devuelve la contraseña', () => pm.expect(pm.response.json().usuario.password).to.be.undefined);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Agente C\",\n  \"email\": \"agentec_{{sufijo}}@boveda.com\",\n  \"password\": \"clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login agente A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Devuelve token', () => pm.expect(j.token).to.be.a('string'));",
+                  "pm.collectionVariables.set('tokenA', j.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agentea_{{sufijo}}@boveda.com\",\n  \"password\": \"clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login agente B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Devuelve token', () => pm.expect(j.token).to.be.a('string'));",
+                  "pm.collectionVariables.set('tokenB', j.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agenteb_{{sufijo}}@boveda.com\",\n  \"password\": \"clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login agente C",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Devuelve token', () => pm.expect(j.token).to.be.a('string'));",
+                  "pm.collectionVariables.set('tokenC', j.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agentec_{{sufijo}}@boveda.com\",\n  \"password\": \"clave1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Crear secreto (agente A)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('secretoId', j.secreto.id);",
+                  "pm.test('creadoPor sale del token, no del body', () => pm.expect(j.secreto.creadoPor).to.not.eql(999));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos"
+              ]
+            },
+            "description": "Se mandan creadoPor y solicitudes falsas a propósito: la API las ignora.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Operación Atraco\",\n  \"contenido\": \"¡Nos robaron!\",\n  \"creadoPor\": 999,\n  \"solicitudes\": [\n    {\n      \"userId\": 2,\n      \"fecha\": \"2020-01-01T00:00:00Z\"\n    },\n    {\n      \"userId\": 3,\n      \"fecha\": \"2020-01-01T00:00:00Z\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar secretos (sin contenido)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test('Ningún secreto trae contenido', () => lista.forEach(s => pm.expect(s.contenido).to.be.undefined));",
+                  "const s = lista.find(x => x.id === pm.collectionVariables.get('secretoId'));",
+                  "pm.test('Las solicitudes falsas no se guardaron', () => pm.expect(s.numeroSolicitudes).to.eql(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Abrir sin quórum → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Explica qué falta', () => pm.expect(pm.response.json().faltan).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "abrir"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Creador solicita → 403 (no cuenta)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/solicitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "solicitar"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Agente B solicita",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Hay 1 agente activo', () => pm.expect(pm.response.json().agentesConSolicitudActiva).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/solicitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "solicitar"
+              ]
+            },
+            "description": "Manda un userId y fecha falsos en el body: se ignoran.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 3,\n  \"fecha\": \"2020-01-01T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Agente B solicita otra vez (no cuenta doble)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Sigue habiendo 1 agente activo', () => pm.expect(pm.response.json().agentesConSolicitudActiva).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/solicitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "solicitar"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Agente B intenta abrir → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "abrir"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Agente C solicita (se completa el quórum)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Ya se puede abrir', () => pm.expect(pm.response.json().sePuedeAbrir).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenC}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/solicitar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "solicitar"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Creador intenta abrir → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "abrir"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Agente C abre → token de un solo uso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('No trae el contenido directo', () => pm.expect(j.contenido).to.be.undefined);",
+                  "pm.collectionVariables.set('tokenRevelar', j.tokenRevelar);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenC}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "abrir"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Agente B usa el token de C → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              },
+              {
+                "key": "X-Token-Revelar",
+                "value": "{{tokenRevelar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/revelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "revelar"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Agente C revela el secreto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Muestra el contenido', () => pm.expect(pm.response.json().contenido).to.eql('¡Nos robaron!'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenC}}"
+              },
+              {
+                "key": "X-Token-Revelar",
+                "value": "{{tokenRevelar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/revelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "revelar"
+              ]
+            },
+            "description": "El token dura 60 segundos: si se vence, vuelve a ejecutar 'Agente C abre'."
+          }
+        },
+        {
+          "name": "Agente C reusa el token → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenC}}"
+              },
+              {
+                "key": "X-Token-Revelar",
+                "value": "{{tokenRevelar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/revelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "revelar"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Apertura por tiempo",
+      "item": [
+        {
+          "name": "Crear secreto programado (abre en 5 s)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('secretoProgramadoId', pm.response.json().secreto.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('fechaApertura', new Date(Date.now() + 5000).toISOString());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Secreto programado\",\n  \"contenido\": \"Se abrió por tiempo\",\n  \"fechaApertura\": \"{{fechaApertura}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Abrir antes de la fecha → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoProgramadoId}}/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoProgramadoId}}",
+                "abrir"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Abrir después de la fecha → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenRevelar2', pm.response.json().tokenRevelar);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Espera 6 segundos para que llegue la fecha de apertura",
+                  "setTimeout(() => {}, 6000);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoProgramadoId}}/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoProgramadoId}}",
+                "abrir"
+              ]
+            },
+            "description": "Si lo ejecutas a mano, espera unos segundos después de crear el secreto."
+          }
+        },
+        {
+          "name": "Revelar secreto programado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Muestra el contenido', () => pm.expect(pm.response.json().contenido).to.eql('Se abrió por tiempo'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              },
+              {
+                "key": "X-Token-Revelar",
+                "value": "{{tokenRevelar2}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoProgramadoId}}/revelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoProgramadoId}}",
+                "revelar"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Fecha en el pasado → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos"
+              ]
+            },
+            "description": "Si se permitiera una fecha pasada, cualquiera podría crear secretos que se abren solos.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Truco\",\n  \"contenido\": \"x\",\n  \"fechaApertura\": \"2020-01-01T00:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Intentos de ataque",
+      "item": [
+        {
+          "name": "Sin token → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/secretos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Token inventado → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJub25lIn0.eyJpZCI6MSwicm9sIjoiamVmZSJ9."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos"
+              ]
+            },
+            "description": "Token con alg 'none' y rol jefe, sin firma."
+          }
+        },
+        {
+          "name": "Token de revelado como token de acceso → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenRevelar}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Login con contraseña incorrecta → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agentea_{{sufijo}}@boveda.com\",\n  \"password\": \"incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login con inyección NoSQL → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": {\n    \"$ne\": null\n  },\n  \"password\": {\n    \"$ne\": null\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Id de secreto inválido → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/123/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "123",
+                "abrir"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Secreto que no existe → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/000000000000000000000000/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "000000000000000000000000",
+                "abrir"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Revelar sin token de revelado → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenC}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/secretos/{{secretoId}}/revelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "secretos",
+                "{{secretoId}}",
+                "revelar"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "sufijo",
+      "value": ""
+    },
+    {
+      "key": "tokenA",
+      "value": ""
+    },
+    {
+      "key": "tokenB",
+      "value": ""
+    },
+    {
+      "key": "tokenC",
+      "value": ""
+    },
+    {
+      "key": "secretoId",
+      "value": ""
+    },
+    {
+      "key": "tokenRevelar",
+      "value": ""
+    },
+    {
+      "key": "secretoProgramadoId",
+      "value": ""
+    },
+    {
+      "key": "tokenRevelar2",
+      "value": ""
+    },
+    {
+      "key": "fechaApertura",
+      "value": ""
+    }
+  ]
+}

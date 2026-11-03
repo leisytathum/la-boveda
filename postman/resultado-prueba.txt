@@ -1,0 +1,171 @@
+newman
+
+La Bóveda API
+
+❏ 1. Flujo completo
+↳ Registro agente A
+  POST http://localhost:3000/auth/registro [201 Created, 426B, 173ms]
+  ✓  Responde 201
+  ✓  No devuelve la contraseña
+
+↳ Registro agente B
+  POST http://localhost:3000/auth/registro [201 Created, 426B, 93ms]
+  ✓  Responde 201
+  ✓  No devuelve la contraseña
+  ✓  Aunque mandó rol jefe, queda como agente
+
+↳ Registro agente C
+  POST http://localhost:3000/auth/registro [201 Created, 426B, 88ms]
+  ✓  Responde 201
+  ✓  No devuelve la contraseña
+
+↳ Login agente A
+  POST http://localhost:3000/auth/login [200 OK, 505B, 69ms]
+  ✓  Responde 200
+  ✓  Devuelve token
+
+↳ Login agente B
+  POST http://localhost:3000/auth/login [200 OK, 505B, 90ms]
+  ✓  Responde 200
+  ✓  Devuelve token
+
+↳ Login agente C
+  POST http://localhost:3000/auth/login [200 OK, 505B, 82ms]
+  ✓  Responde 200
+  ✓  Devuelve token
+
+↳ Crear secreto (agente A)
+  POST http://localhost:3000/secretos [201 Created, 370B, 21ms]
+  ✓  Responde 201
+  ✓  creadoPor sale del token, no del body
+
+↳ Listar secretos (sin contenido)
+  GET http://localhost:3000/secretos [200 OK, 648B, 14ms]
+  ✓  Responde 200
+  ✓  Ningún secreto trae contenido
+  ✓  Las solicitudes falsas no se guardaron
+
+↳ Abrir sin quórum → 403
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/abrir [403 Forbidden, 422B, 13ms]
+  ✓  Responde 403
+  ✓  Explica qué falta
+
+↳ Creador solicita → 403 (no cuenta)
+  POST http://localhost:3000/secretos/6aea6573513cab0256d500d9/solicitar [403 Forbidden, 301B, 10ms]
+  ✓  Responde 403
+
+↳ Agente B solicita
+  POST http://localhost:3000/secretos/6aea6573513cab0256d500d9/solicitar [201 Created, 302B, 27ms]
+  ✓  Responde 201
+  ✓  Hay 1 agente activo
+
+↳ Agente B solicita otra vez (no cuenta doble)
+  POST http://localhost:3000/secretos/6aea6573513cab0256d500d9/solicitar [201 Created, 302B, 17ms]
+  ✓  Responde 201
+  ✓  Sigue habiendo 1 agente activo
+
+↳ Agente B intenta abrir → 403
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/abrir [403 Forbidden, 422B, 8ms]
+  ✓  Responde 403
+
+↳ Agente C solicita (se completa el quórum)
+  POST http://localhost:3000/secretos/6aea6573513cab0256d500d9/solicitar [201 Created, 301B, 14ms]
+  ✓  Responde 201
+  ✓  Ya se puede abrir
+
+↳ Creador intenta abrir → 403
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/abrir [403 Forbidden, 409B, 8ms]
+  ✓  Responde 403
+
+↳ Agente C abre → token de un solo uso
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/abrir [200 OK, 694B, 13ms]
+  ✓  Responde 200
+  ✓  No trae el contenido directo
+
+↳ Agente B usa el token de C → 403
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/revelar [403 Forbidden, 287B, 5ms]
+  ✓  Responde 403
+
+↳ Agente C revela el secreto
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/revelar [200 OK, 303B, 13ms]
+  ✓  Responde 200
+  ✓  Muestra el contenido
+
+↳ Agente C reusa el token → 403
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/revelar [403 Forbidden, 285B, 7ms]
+  ✓  Responde 403
+
+❏ 2. Apertura por tiempo
+↳ Crear secreto programado (abre en 5 s)
+  POST http://localhost:3000/secretos [201 Created, 393B, 8ms]
+  ✓  Responde 201
+
+↳ Abrir antes de la fecha → 403
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500db/abrir [403 Forbidden, 429B, 7ms]
+  ✓  Responde 403
+
+↳ Abrir después de la fecha → 200
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500db/abrir [200 OK, 694B, 11ms]
+  ✓  Responde 200
+
+↳ Revelar secreto programado
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500db/revelar [200 OK, 310B, 8ms]
+  ✓  Responde 200
+  ✓  Muestra el contenido
+
+↳ Fecha en el pasado → 400
+  POST http://localhost:3000/secretos [400 Bad Request, 270B, 4ms]
+  ✓  Responde 400
+
+❏ 3. Intentos de ataque
+↳ Sin token → 401
+  GET http://localhost:3000/secretos [401 Unauthorized, 293B, 2ms]
+  ✓  Responde 401
+
+↳ Token inventado → 401
+  GET http://localhost:3000/secretos [401 Unauthorized, 249B, 2ms]
+  ✓  Responde 401
+
+↳ Token de revelado como token de acceso → 401
+  GET http://localhost:3000/secretos [401 Unauthorized, 249B, 3ms]
+  ✓  Responde 401
+
+↳ Login con contraseña incorrecta → 401
+  POST http://localhost:3000/auth/login [401 Unauthorized, 338B, 95ms]
+  ✓  Responde 401
+
+↳ Login con inyección NoSQL → 400
+  POST http://localhost:3000/auth/login [400 Bad Request, 354B, 4ms]
+  ✓  Responde 400
+
+↳ Id de secreto inválido → 400
+  GET http://localhost:3000/secretos/123/abrir [400 Bad Request, 264B, 12ms]
+  ✓  Responde 400
+
+↳ Secreto que no existe → 404
+  GET http://localhost:3000/secretos/000000000000000000000000/abrir [404 Not Found, 252B, 9ms]
+  ✓  Responde 404
+
+↳ Revelar sin token de revelado → 401
+  GET http://localhost:3000/secretos/6aea6573513cab0256d500d9/revelar [401 Unauthorized, 297B, 7ms]
+  ✓  Responde 401
+
+┌─────────────────────────┬───────────────────┬──────────────────┐
+│                         │          executed │           failed │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              iterations │                 1 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│                requests │                32 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│            test-scripts │                32 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│      prerequest-scripts │                 3 │                0 │
+├─────────────────────────┼───────────────────┼──────────────────┤
+│              assertions │                49 │                0 │
+├─────────────────────────┴───────────────────┴──────────────────┤
+│ total run duration: 7.4s                                       │
+├────────────────────────────────────────────────────────────────┤
+│ total data received: 4.62kB (approx)                           │
+├────────────────────────────────────────────────────────────────┤
+│ average response time: 29ms [min: 2ms, max: 173ms, s.d.: 39ms] │
+└────────────────────────────────────────────────────────────────┘
